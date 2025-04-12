@@ -22,9 +22,7 @@ import simplf.Stmt.Var;
 import simplf.Stmt.While;
 
 public class Desugar implements Expr.Visitor<Expr>, Stmt.Visitor<Stmt> {
-
-    public Desugar() {
-        
+    public Desugar() {   
     }
 
     public List<Stmt> desugar(List<Stmt> stmts) {
@@ -80,8 +78,43 @@ public class Desugar implements Expr.Visitor<Expr>, Stmt.Visitor<Stmt> {
     }
 
     @Override
-    public Stmt visitForStmt(For stmt) {
-        throw new UnsupportedOperationException("TODO: desugar for loops");
+    public Stmt visitForStmt(For stmt){
+        Stmt statement;
+        if(stmt.init==null){
+            statement=null;
+        }else{
+            statement=new Stmt.Expression(stmt.init.accept(this));
+        }   
+        Expr expression;
+        if(stmt.cond==null){
+            expression=new Expr.Literal(true);
+        }else{
+            expression=stmt.cond.accept(this);
+        }
+        Stmt increment;
+        if(stmt.incr==null){
+            increment=null;
+        }else{
+        increment=new Stmt.Expression(stmt.incr.accept(this));
+        }
+        Stmt body=stmt.body.accept(this);
+        
+        if (increment!=null) {
+            List<Stmt> loop_body = new ArrayList<>();
+            loop_body.add(body);
+            loop_body.add(increment);
+            body = new Stmt.Block(loop_body);
+        }
+        
+        //equivalent while loop for the given for loop
+        Stmt whileLoop = new Stmt.While(expression, body);
+        if (statement!=null) {
+            List<Stmt> blockStmts = new ArrayList<>();
+            blockStmts.add(statement);
+            blockStmts.add(whileLoop);
+            return new Stmt.Block(blockStmts);
+        }
+        return whileLoop;
     }
 
     @Override

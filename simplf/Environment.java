@@ -1,16 +1,22 @@
 package simplf; 
 
-class Environment {
-    Environment() {
-        //throw new UnsupportedOperationException("TODO: implement environments.");
+class Environment{
+    private AssocList values;
+    private final Environment enclosing;
+
+    Environment(){
+        this.values=null;
+        this.enclosing=null;
     }
 
-    Environment(Environment enclosing) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+    Environment(Environment enclosing){
+        this.values=null;
+        this.enclosing=enclosing;    
     }
 
-    Environment(AssocList assocList, Environment enclosing) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+    Environment(AssocList assocList,Environment enclosing){
+        this.values=assocList;
+        this.enclosing=enclosing;
     }
 
     // Return a new version of the environment that defines the variable "name"
@@ -27,16 +33,36 @@ class Environment {
     // [{name: "z", value: 3}, {name: "x", value: 1}, {name: "y", value: 2}]
     // This should be constructed by building a new class of type AssocList whose "next"
     // reference is the previous AssocList.
-    Environment define(Token varToken, String name, Object value) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+    Environment define(Token varToken, String name, Object value){
+        AssocList val = new AssocList(name, value, this.values);
+        return new Environment(val, this.enclosing);       
     }
 
-    void assign(Token name, Object value) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+    void assign(Token name,Object value){
+        for(AssocList temp=values;temp != null;temp=temp.next){
+            if (temp.name.equals(name.lexeme)) {
+                temp.value = value;
+                return;
+            }
+        }
+        if(enclosing!=null){
+            enclosing.assign(name, value);
+        }else{
+            throw new RuntimeError(name, "Undefined variable '" + name.lexeme);
+        }
     }
 
-    Object get(Token name) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+    Object get(Token name){
+        for(AssocList temp=values;temp != null;temp=temp.next){
+            if (temp.name.equals(name.lexeme)) {
+                return temp.value;
+            }
+        }
+        if(enclosing!=null){
+            return enclosing.get(name);
+        }else{
+            throw new RuntimeError(name, "Undefined variable '" + name.lexeme);
+        }
     }
 }
 
