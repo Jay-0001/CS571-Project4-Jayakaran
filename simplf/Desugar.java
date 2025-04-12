@@ -79,43 +79,29 @@ public class Desugar implements Expr.Visitor<Expr>, Stmt.Visitor<Stmt> {
 
     @Override
     public Stmt visitForStmt(For stmt){
-        Stmt statement;
-        if(stmt.init==null){
-            statement=null;
-        }else{
-            statement=new Stmt.Expression(stmt.init.accept(this));
-        }   
-        Expr expression;
+        List<Stmt> bodyPlusIncr=new ArrayList<>();
+        bodyPlusIncr.add(stmt.body.accept(this));
+        if(stmt.incr!=null){
+            bodyPlusIncr.add(new Stmt.Expression(stmt.incr.accept(this)));
+        }
+        Expr condition;
         if(stmt.cond==null){
-            expression=new Expr.Literal(true);
+            condition=new Expr.Literal(true);
+        }
+        else{
+            condition=stmt.cond.accept(this);
+        }
+        Stmt whileStmt=new Stmt.While(condition,new Block(bodyPlusIncr));
+        if(stmt.init!=null){
+            List<Stmt> blockStatements=new ArrayList<>();
+            blockStatements.add(new Stmt.Expression(stmt.init.accept(this)));
+            blockStatements.add(whileStmt);
+            return new Block(blockStatements);
         }else{
-            expression=stmt.cond.accept(this);
+            return whileStmt;
         }
-        Stmt increment;
-        if(stmt.incr==null){
-            increment=null;
-        }else{
-        increment=new Stmt.Expression(stmt.incr.accept(this));
-        }
-        Stmt body=stmt.body.accept(this);
-        
-        if (increment!=null) {
-            List<Stmt> loop_body = new ArrayList<>();
-            loop_body.add(body);
-            loop_body.add(increment);
-            body = new Stmt.Block(loop_body);
-        }
-        
-        //equivalent while loop for the given for loop
-        Stmt whileLoop = new Stmt.While(expression, body);
-        if (statement!=null) {
-            List<Stmt> blockStmts = new ArrayList<>();
-            blockStmts.add(statement);
-            blockStmts.add(whileLoop);
-            return new Stmt.Block(blockStmts);
-        }
-        return whileLoop;
-    }
+}
+
 
     @Override
     public Stmt visitFunctionStmt(Function stmt) {
