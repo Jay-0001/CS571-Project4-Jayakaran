@@ -211,7 +211,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return function.call(this, arguments);
     }
 
-    private Object evaluate(Expr expr) {
+    public Object evaluate(Expr expr) {
         return expr.accept(this);
     }
 

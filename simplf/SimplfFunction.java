@@ -15,18 +15,39 @@ class SimplfFunction implements SimplfCallable {
         this.closure = environment;
     }
 
+    //unexpected behaviour
     @Override
     public Object call(Interpreter interpreter, List<Object> args){
-        Environment env = new Environment(closure);
+        //need to create a new environment everytime a function is called -> environment diagrams
+        Environment tempEnv = new Environment(closure);
         for(int i=0;i<declaration.params.size();i++){
-            env = env.define(declaration.params.get(i), declaration.params.get(i).lexeme, args.get(i));
+            tempEnv = tempEnv.define(declaration.params.get(i), declaration.params.get(i).lexeme, args.get(i));
         }
 
-        Object result=null;
-        for (Stmt stmt : declaration.body) {
-            result = interpreter.execute(stmt);
+        //store the return value
+        Object returnValue=null;
+        for(int i=0;i<declaration.body.size();i++){
+            Stmt functionStmt = declaration.body.get(i);
+    
+            if (i==declaration.body.size()-1 && functionStmt instanceof Stmt.Expression) {
+                //last line of the function has the return value
+                returnValue = interpreter.evaluate(((Stmt.Expression) functionStmt).expr);
+            } else if (functionStmt instanceof Stmt.Var) {
+                //assignment statements
+                Object value = interpreter.evaluate(((Stmt.Var) functionStmt).initializer);
+                tempEnv = tempEnv.define(((Stmt.Var) functionStmt).name, ((Stmt.Var) functionStmt).name.lexeme, value);
+            } else if (functionStmt instanceof Stmt.Function) {
+                //inner functions
+                Stmt.Function func = (Stmt.Function) functionStmt;
+                Environment localEnv = tempEnv.define(func.name, func.name.lexeme, null);
+                SimplfFunction fn = new SimplfFunction(func,localEnv);
+                localEnv.assign(func.name, fn);
+            } else {
+                //regular statements
+                interpreter.execute(functionStmt);
+            }
         }
-        return result;
+        return returnValue;
     }
 
     @Override
