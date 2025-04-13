@@ -29,20 +29,20 @@ class SimplfFunction implements SimplfCallable {
         for(int i=0;i<declaration.body.size();i++){
             Stmt functionStmt = declaration.body.get(i);
     
-            if (i==declaration.body.size()-1 && functionStmt instanceof Stmt.Expression) {
+            if (i==declaration.body.size()-1 && functionStmt instanceof Stmt.Expression){
                 //last line of the function has the return value
                 returnValue = interpreter.evaluateRecEnv(((Stmt.Expression) functionStmt).expr,tempEnv);
-            } else if (functionStmt instanceof Stmt.Var) {
+            }else if (functionStmt instanceof Stmt.Var){
                 //assignment statements
                 Object value = interpreter.evaluate(((Stmt.Var) functionStmt).initializer);
                 tempEnv = tempEnv.define(((Stmt.Var) functionStmt).name, ((Stmt.Var) functionStmt).name.lexeme, value);
-            } else if (functionStmt instanceof Stmt.Function) {
+            }else if (functionStmt instanceof Stmt.Function){
                 //inner functions
                 Stmt.Function func = (Stmt.Function) functionStmt;
-                Environment localEnv = tempEnv.define(func.name, func.name.lexeme, null);
-                SimplfFunction fn = new SimplfFunction(func,localEnv);
-                localEnv.assign(func.name, fn);
-            } else {
+                tempEnv = tempEnv.define(func.name, func.name.lexeme, null);
+                SimplfFunction fn = new SimplfFunction(func,tempEnv);
+                tempEnv.assign(func.name, fn);
+            }else{
                 //regular statements
                 interpreter.executeRecEnv(functionStmt,tempEnv);
             }

@@ -48,14 +48,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     @Override
     public Object visitBlockStmt(Stmt.Block stmt){
         //current object
-        Environment previous = this.environment;
+        Environment previous = environment;
         try {
-            this.environment = new Environment(previous);
-            for (Stmt s : stmt.statements) {
+            environment = new Environment(previous);
+            for(Stmt s : stmt.statements) {
                 execute(s);
             }
         } finally {
-            this.environment = previous;
+            environment = previous;
         }
         return null;
     }
@@ -83,7 +83,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     @Override
     public Object visitForStmt(For stmt) {
-        return null;
+        throw new UnsupportedOperationException("For loops are not interpreted.");
     }
 
     //part3
