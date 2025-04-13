@@ -31,7 +31,7 @@ class SimplfFunction implements SimplfCallable {
     
             if (i==declaration.body.size()-1 && functionStmt instanceof Stmt.Expression) {
                 //last line of the function has the return value
-                returnValue = interpreter.evaluate(((Stmt.Expression) functionStmt).expr);
+                returnValue = interpreter.evaluateRecEnv(((Stmt.Expression) functionStmt).expr,tempEnv);
             } else if (functionStmt instanceof Stmt.Var) {
                 //assignment statements
                 Object value = interpreter.evaluate(((Stmt.Var) functionStmt).initializer);
@@ -44,7 +44,7 @@ class SimplfFunction implements SimplfCallable {
                 localEnv.assign(func.name, fn);
             } else {
                 //regular statements
-                interpreter.execute(functionStmt);
+                interpreter.executeRecEnv(functionStmt,tempEnv);
             }
         }
         return returnValue;

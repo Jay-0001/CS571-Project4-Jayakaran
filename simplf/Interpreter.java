@@ -214,6 +214,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Object evaluate(Expr expr) {
         return expr.accept(this);
     }
+     
+    //helper for function evaluation
+    public Object evaluateRecEnv(Expr expr, Environment env){
+        Environment previous = this.environment;
+        try {
+            this.environment = env;
+            return expr.accept(this);
+        } finally {
+            this.environment = previous;
+        }
+    }
+
 
     //part1
     @Override
@@ -234,6 +246,17 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     public Object execute(Stmt stmt) {
         return stmt.accept(this);
+    }
+
+    //helper for function execution
+    public void executeRecEnv(Stmt stmt, Environment env){
+        Environment previous = this.environment;
+        try {
+            this.environment = env;
+            stmt.accept(this);
+        } finally {
+            this.environment = previous;
+        }
     }
 
     //checking conditions for if,while
@@ -276,6 +299,5 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             return num;
         }
         return object.toString();
-    }
-
+    } 
 } 
