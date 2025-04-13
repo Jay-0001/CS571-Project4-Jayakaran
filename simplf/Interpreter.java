@@ -32,19 +32,22 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         System.out.println(stringify(val));
         return null;
     }
-
+    
+    //part1
     @Override
-    public Void visitVarStmt(Stmt.Var stmt) {
+    public Void visitVarStmt(Stmt.Var stmt){
         Object val = null;
-        if (stmt.initializer!=null) {
+        if(stmt.initializer!=null){
             val=evaluate(stmt.initializer);
         }
         environment = environment.define(stmt.name, stmt.name.lexeme, val);
         return null;
     }
 
+    //part1
     @Override
-    public Object visitBlockStmt(Stmt.Block stmt) {
+    public Object visitBlockStmt(Stmt.Block stmt){
+        //current object
         Environment previous = this.environment;
         try {
             this.environment = new Environment(previous);
@@ -57,19 +60,22 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return null;
     }
 
+    //part2
     @Override
-    public Object visitIfStmt(Stmt.If stmt) {
-        if (isTruthy(evaluate(stmt.cond))) {
+    public Object visitIfStmt(Stmt.If stmt){
+        if(isTruthy(evaluate(stmt.cond))) {
             execute(stmt.thenBranch);
-        } else if (stmt.elseBranch != null) {
+        }
+        else if(stmt.elseBranch != null) {
             execute(stmt.elseBranch);
         }
         return null;
     }
 
+    //part2
     @Override
     public Object visitWhileStmt(Stmt.While stmt) {
-        while (isTruthy(evaluate(stmt.cond))) {
+        while(isTruthy(evaluate(stmt.cond))) {
             execute(stmt.body);
         }
         return null;
@@ -80,10 +86,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return null;
     }
 
+    //part3
     @Override
     public Object visitFunctionStmt(Stmt.Function stmt) {
-        SimplfFunction function = new SimplfFunction(stmt, environment);
-        environment = environment.define(stmt.name, stmt.name.lexeme, function);
+        environment = environment.define(stmt.name, stmt.name.lexeme, null);
+        SimplfFunction definedFunction = new SimplfFunction(stmt, environment);
+        environment.assign(stmt.name, definedFunction);
         return null;
     }
 
@@ -175,10 +183,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return evaluate(expr.expression);
     }
 
+    //part1
     @Override
     public Object visitVarExpr(Expr.Variable expr) {
         return environment.get(expr.name);
     }
+
+    //part3
     @Override
     public Object visitCallExpr(Expr.Call expr) {
         Object callee = evaluate(expr.callee);
@@ -201,6 +212,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return expr.accept(this);
     }
 
+    //part1
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = evaluate(expr.value);
@@ -221,6 +233,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
         return stmt.accept(this);
     }
 
+    //checking conditions for if,while
     private boolean isTruthy(Object object) {
         if (object == null) {
             return false;

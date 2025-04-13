@@ -16,13 +16,13 @@ class SimplfFunction implements SimplfCallable {
     }
 
     @Override
-    public Object call(Interpreter interpreter, List<Object> args) {
+    public Object call(Interpreter interpreter, List<Object> args){
         Environment env = new Environment(closure);
-        for (int i = 0; i < declaration.params.size(); i++) {
+        for(int i=0;i<declaration.params.size();i++){
             env = env.define(declaration.params.get(i), declaration.params.get(i).lexeme, args.get(i));
         }
 
-        Object result = null;
+        Object result=null;
         for (Stmt stmt : declaration.body) {
             result = interpreter.execute(stmt);
         }

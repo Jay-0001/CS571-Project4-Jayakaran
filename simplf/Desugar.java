@@ -77,12 +77,13 @@ public class Desugar implements Expr.Visitor<Expr>, Stmt.Visitor<Stmt> {
             stmt.body.accept(this));
     }
 
+    //part2
     @Override
     public Stmt visitForStmt(For stmt){
-        List<Stmt> bodyPlusIncr=new ArrayList<>();
-        bodyPlusIncr.add(stmt.body.accept(this));
+        List<Stmt> loopBody=new ArrayList<>();
+        loopBody.add(stmt.body.accept(this));
         if(stmt.incr!=null){
-            bodyPlusIncr.add(new Stmt.Expression(stmt.incr.accept(this)));
+            loopBody.add(new Stmt.Expression(stmt.incr.accept(this)));
         }
         Expr condition;
         if(stmt.cond==null){
@@ -91,7 +92,8 @@ public class Desugar implements Expr.Visitor<Expr>, Stmt.Visitor<Stmt> {
         else{
             condition=stmt.cond.accept(this);
         }
-        Stmt whileStmt=new Stmt.While(condition,new Block(bodyPlusIncr));
+        
+        Stmt whileStmt=new While(condition,new Block(loopBody));
         if(stmt.init!=null){
             List<Stmt> blockStatements=new ArrayList<>();
             blockStatements.add(new Stmt.Expression(stmt.init.accept(this)));
