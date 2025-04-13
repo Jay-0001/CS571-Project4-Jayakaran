@@ -201,10 +201,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             throw new RuntimeError(expr.paren, "Can only call functions.");
         }
         SimplfCallable function = (SimplfCallable) callee;
-        if (arguments.size() != function.args()) {
+        if (function instanceof SimplfFunction){
+            SimplfFunction f = (SimplfFunction) function;
+            if(arguments.size() != f.args()) {
             throw new RuntimeError(expr.paren,
                 "Expected " + function.args() + " arguments but got " + arguments.size() + ".");
-        }
+            }
+        }    
         return function.call(this, arguments);
     }
 

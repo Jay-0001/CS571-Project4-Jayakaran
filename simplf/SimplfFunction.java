@@ -26,7 +26,6 @@ class SimplfFunction implements SimplfCallable {
         for (Stmt stmt : declaration.body) {
             result = interpreter.execute(stmt);
         }
-
         return result;
     }
 
